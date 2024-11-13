@@ -1,9 +1,11 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import React from "react";
-import { Image, TouchableOpacity } from "react-native";
+import { Image, StyleSheet, TouchableOpacity } from "react-native";
 import HomeScreen from "../screens/HomeScreen";
-import SettingsScreen from "../screens/SettingsScreen";
+import ListScreen from "../screens/ListScreen";
+
+
 
 const Tab = createBottomTabNavigator();
 
@@ -12,52 +14,43 @@ const colors = {
     activePageIcon: "rgb(223, 223, 223)",
     background: "rgb(83, 83, 83)",
     activePageBox: "rgb(62, 62, 62)",
-    inactivePageIcon: "rgb(32, 32, 32)",
+    inactivePageIcon: "rgb(42, 42, 42)",
 };
 
-// style
+// style constants
 const radius = 20;
-const iconSize = {
-    home: { width: 42, height: 42 },
-    list: { width: 37, height: 37 },
-};
+const tabIconSize = 38;
 
 const screens = [
     {
         name: "Home",
         component: HomeScreen,
-        iconPath: require("../../assets/icons/checklist.png"),
-        iconStyle: { width: 30, height: 30 },
+        iconPath: require("../../assets/icons/navbar/checklist.png"),
     },
     {
         name: "List",
-        component: SettingsScreen,
-        iconPath: require("../../assets/icons/magnifying_glass.png"),
-        iconStyle: { width: 30, height: 30 },
+        component: ListScreen,
+        iconPath: require("../../assets/icons/navbar/magnifying_glass.png"),
     },
 ];
 
+// CustomTabButton Component
 const CustomTabButton = (props) => {
     const { selected } = props.accessibilityState;
 
     return (
         <TouchableOpacity
             {...props}
-            style={{
-                ...props.style,
-                backgroundColor: selected
-                    ? colors.activePageBox
-                    : "transparent",
-                borderTopRightRadius: selected ? radius : 0,
-                flex: 1,
-                borderTopLeftRadius: radius,
-                justifyContent: "center",
-                alignItems: "center",
-            }}
+            style={[
+                props.style,
+                styles.tabButton,
+                selected && styles.activeTabButton,
+            ]}
         />
     );
 };
 
+// AppNavigator Component
 export default function AppNavigator() {
     return (
         <NavigationContainer>
@@ -68,30 +61,21 @@ export default function AppNavigator() {
                         (screen) => screen.name === route.name
                     );
                     return {
-                        tabBarIcon: ({ color }) => {
-                            return (
-                                <Image
-                                    source={screen.iconPath}
-                                    style={{
-                                        ...screen.iconStyle,
-                                        tintColor: color,
-                                    }}
-                                />
-                            );
-                        },
+                        tabBarIcon: ({ color }) => (
+                            <Image
+                                source={screen.iconPath}
+                                style={[
+                                    styles.tabIcon,
+                                    { tintColor: color },
+                                ]}
+                            />
+                        ),
                         tabBarActiveTintColor: colors.activePageIcon,
                         tabBarInactiveTintColor:
                             colors.inactivePageIcon,
                         tabBarHideOnKeyboard: true,
-                        tabBarStyle: {
-                            backgroundColor: colors.background,
-                            height: 84,
-                            borderTopStartRadius: radius,
-                            borderTopEndRadius: radius,
-                        },
-                        tabBarLabelStyle: {
-                            display: "none",
-                        },
+                        tabBarStyle: styles.tabBar,
+                        tabBarLabelStyle: styles.tabBarLabel,
                     };
                 }}
             >
@@ -104,6 +88,7 @@ export default function AppNavigator() {
                             tabBarButton: (props) => (
                                 <CustomTabButton {...props} />
                             ),
+                            headerShown: false,
                         }}
                     />
                 ))}
@@ -111,3 +96,32 @@ export default function AppNavigator() {
         </NavigationContainer>
     );
 }
+
+const styles = StyleSheet.create({
+    tabButton: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        borderTopLeftRadius: radius,
+    },
+    activeTabButton: {
+        backgroundColor: colors.activePageBox,
+        borderTopRightRadius: radius,
+    },
+    tabBar: {
+        backgroundColor: colors.background,
+
+        height: 84,
+        borderTopStartRadius: radius,
+        borderTopEndRadius: radius,
+        position: "absolute",
+        bottom: 0,
+    },
+    tabBarLabel: {
+        display: "none",
+    },
+    tabIcon: {
+        width: tabIconSize,
+        height: tabIconSize,
+    },
+});
